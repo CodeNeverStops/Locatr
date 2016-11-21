@@ -1,20 +1,46 @@
 package io.github.uv_lab.locatr;
 
+import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.Api;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Result;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.common.api.zza;
+import com.google.android.gms.common.api.zzi;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by youwei on 2016/11/21.
  */
 
 public class LocatrFragment extends Fragment {
+    private static final String TAG = "LocatrFragment";
+
     private ImageView mImageView;
+    private GoogleApiClient mClient;
 
     public static LocatrFragment newInstance() {
         return new LocatrFragment();
@@ -24,6 +50,21 @@ public class LocatrFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        mClient = new GoogleApiClient.Builder(getActivity())
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(Bundle bundle) {
+                        getActivity().invalidateOptionsMenu();
+                    }
+
+                    @Override
+                    public void onConnectionSuspended(int i) {
+
+                    }
+                })
+                .build();
     }
 
     @Override
@@ -35,8 +76,53 @@ public class LocatrFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        getActivity().invalidateOptionsMenu();
+        mClient.connect();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mClient.disconnect();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_locatr, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_locate);
+        searchItem.setEnabled(mClient.isConnected());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_locate:
+                findImage();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void findImage() {
+        LocationRequest request = LocationRequest.create();
+        // 优先级，是省电优先，还是定位精准度优先
+        request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // 地理位置更新多少次
+        request.setNumUpdates(1);
+        // 地理位置更新的频繁度
+        request.setInterval(0);
+        LocationServices.FusedLocationApi
+                .requestLocationUpdates(mClient, request, new LocationListener() {
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        Log.i(TAG, "Got a fix: " + location);
+                    }
+                });
     }
 }
