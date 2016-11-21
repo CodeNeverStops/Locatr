@@ -1,5 +1,5 @@
 # Locatr
-Android编程权威指南（第二版）中第31章的例子
+地理位置和Play服务
 
 * [总目录](https://github.com/uv-lab/Locatr)
 * [地理位置和Play服务](https://github.com/uv-lab/Locatr/tree/ch31)
