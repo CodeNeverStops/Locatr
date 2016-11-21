@@ -1,14 +1,12 @@
 package io.github.uv_lab.locatr;
 
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,24 +16,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Result;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.common.api.zza;
-import com.google.android.gms.common.api.zzi;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.io.FileDescriptor;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by youwei on 2016/11/21.
@@ -46,6 +33,7 @@ public class LocatrFragment extends Fragment {
 
     private ImageView mImageView;
     private GoogleApiClient mClient;
+    private ProgressDialog mProgressDialog;
 
     public static LocatrFragment newInstance() {
         return new LocatrFragment();
@@ -107,6 +95,7 @@ public class LocatrFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_locate:
+                mProgressDialog = ProgressDialog.show(getActivity(), "Loading", "Search image...");
                 findImage();
                 return true;
             default:
@@ -160,6 +149,7 @@ public class LocatrFragment extends Fragment {
         @Override
         protected void onPostExecute(Void result) {
             mImageView.setImageBitmap(mBitmap);
+            mProgressDialog.dismiss();
         }
 
     }
